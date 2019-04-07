@@ -567,12 +567,124 @@ String functionFun(){
 
 String callFun(){
     variable String tmp="";
-
+    //push return address
+    tmp+="@ReturnAddress\n";
+    tmp+="D=A\n";
+    tmp+="@SP\n";
+    tmp+="A=M\n";
+    tmp+="M=D\n";
+    tmp+="@SP\n";
+    tmp+="M=M+1\n";
+    //push LCL ,saved reg for caller func
+    tmp+="@LCL\n";
+    tmp+="D=M\n";
+    tmp+="@SP\n";
+    tmp+="A=M\n";
+    tmp+="M=D\n";
+    tmp+="@SP\n";
+    tmp+="M=M+1\n";
+    //push ARG ,saved reg for caller func
+    tmp+="@ARG\n";
+    tmp+="D=M\n";
+    tmp+="@SP\n";
+    tmp+="A=M\n";
+    tmp+="M=D\n";
+    tmp+="@SP\n";
+    tmp+="M=M+1\n";
+    //push THIS ,saved reg for caller func
+    tmp+="@THIS\n";
+    tmp+="D=M\n";
+    tmp+="@SP\n";
+    tmp+="A=M\n";
+    tmp+="M=D\n";
+    tmp+="@SP\n";
+    tmp+="M=M+1\n";
+    //push THAT ,saved reg for caller func
+    tmp+="@THAT\n";
+    tmp+="D=M\n";
+    tmp+="@SP\n";
+    tmp+="A=M\n";
+    tmp+="M=D\n";
+    tmp+="@SP\n";
+    tmp+="M=M+1\n";
+    //ARG for called func
+    tmp+="@SP\n";
+    tmp+="D=M\n";
+    tmp+="@calledARG\n";
+    tmp+="D=D-A\n";
+    tmp+="@ARG\n";
+    tmp+="M=D\n";
+    //callad LCL=SP
+    tmp+="@SP\n";
+    tmp+="D=M\n";
+    tmp+="@LCL\n";
+    tmp+="M=D\n";
+//GOTO to the func
+    tmp+="@calladfunc\n";
+    tmp+="0;JMP\n";
+    //label for RA
+    tmp+="ReturnAddress\n";
     return tmp;
 }
 
 String returnFun(){
     variable String tmp="";
+    //frame=LCL
+    tmp+="@LCL\n";
+    tmp+="D=M\n";
+    //return to frame-5
+    tmp+="@5\n";
+    tmp+="A=D-A\n";
+    tmp+="D=M\n";
+    tmp+="@13\n";
+    tmp+="M=D\n";//RAM[13]=LCL-5
+
+    //ARG=POP()
+    tmp+="@SP\n";
+    tmp+="M=M-1\n";
+    tmp+="A=M\n";
+    tmp+="D=M\n";
+    tmp+="@ARG\n";
+    tmp+="A=M\n";
+    tmp+="M=D\n";
+    //new SP
+    tmp+="@ARG\n";
+    tmp+="D=M\n";//D=RAM[ARG]
+    tmp+="@SP\n";
+    tmp+="M=D+1\n";//RAM[SP]=D+1
+    //GETTING BACK ALL THE CALLER REG THAT THIS ARG LCL
+    //THAT
+    tmp+="@LCL\n";
+    tmp+="M=M-1\n";
+    tmp+="A=M\n";
+    tmp+="D=M\n";
+    tmp+="@THAT\n";
+    tmp+="M=D\n";
+    //THIS
+    tmp+="@LCL\n";
+    tmp+="M=M-1\n";
+    tmp+="A=M\n";
+    tmp+="D=M\n";
+    tmp+="@THIS\n";
+    tmp+="M=D\n";
+    //ARG
+    tmp+="@LCL\n";
+    tmp+="M=M-1\n";
+    tmp+="A=M\n";
+    tmp+="D=M\n";
+    tmp+="@ARG\n";
+    tmp+="M=D\n";
+    //LCL
+    tmp+="@LCL\n";
+    tmp+="M=M-1\n";
+    tmp+="A=M\n";
+    tmp+="D=M\n";
+    tmp+="@LCL\n";
+    tmp+="M=D\n";
+    //goto the caller func
+    tmp+="@13\n";
+    tmp+="A=M\n";
+    tmp+="0;JMP\n";
 
     return tmp;
 }
