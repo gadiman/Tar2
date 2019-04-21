@@ -43,7 +43,7 @@ shared void openDict(String dictPath) {
             }
 
         }
-        if (numOfVmFiles > 1) { //out put one asm file for each directory
+        if (numOfVmFiles > 1) { //output one asm file for each directory
             String newPath = dict + "\\result.gadAndShimon";
             Resource newPath_ = parsePath(newPath).resource;
             if (is File|Nil newPath_) {
