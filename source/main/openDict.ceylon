@@ -15,13 +15,14 @@ import ceylon.file {
 shared void openDict(String dictPath) {
 
     value resource_ = parsePath(dictPath).resource;
-    variable String tmp = "";
+
+    variable String tmp = "";//for text of vm's files
 
 
     if (is Directory resource_) {
 
-        Integer numOfVmFiles= resource_.childPaths("*.vm").size;
-        variable String dict = resource_.string;
+        Integer numOfVmFiles= resource_.childPaths("*.vm").size;//num of VM's files on directory
+        variable String dict = resource_.string;//neme of directory
 
         for (path in resource_.childPaths("*.vm")) {
             String currentFilePhath = path.string;
@@ -31,10 +32,10 @@ shared void openDict(String dictPath) {
                 if (numOfVmFiles == 1) {//only one vm file
                     readFile(currentFilePhath);
                 }
-                else {//serch for Sys.vm file
+                else {//serch for Sys.vm file and put him at the first of the result file
 
                     if (pathOfF.name.equals("Sys.vm")) {
-                        tmp = textOfFile(pathOfF.string).plus(tmp);
+                        tmp = textOfFile(pathOfF.string).plus(tmp);//put Sys.vm text on the head
                     } else {
                         tmp +=textOfFile(pathOfF.string);
                     }
@@ -42,7 +43,7 @@ shared void openDict(String dictPath) {
             }
 
         }
-        if (numOfVmFiles > 1) {
+        if (numOfVmFiles > 1) { //out put one asm file for each directory
             String newPath = dict + "\\result.gadAndShimon";
             Resource newPath_ = parsePath(newPath).resource;
             if (is File|Nil newPath_) {
@@ -56,7 +57,7 @@ shared void openDict(String dictPath) {
     }
 }
 
-
+//this function reading the Vm's files and return the text as a String
 String textOfFile(String path){
     variable String tmp="";
     Resource resource = parsePath(path).resource;
