@@ -73,7 +73,7 @@ shared void readFile(String filePath) {
                 textOfFile += callFun();
               }
             case ("function") {
-                textOfFile += functionFun();
+                textOfFile += functionFun(line);
               }
             case ("return")   {
                 textOfFile += returnFun();
@@ -558,8 +558,31 @@ String gotoFun(String line,String nameOfFile){
     return tmp;
 }
 
-String functionFun(){
+String functionFun(String line){
+
     variable String tmp="";
+    {String*} sentence = line.split();
+
+    String? nameOfFunc = sentence.rest.first; //The name of  the function
+    String? localVariables = sentence.rest.rest.first; //The number of the local variables
+    assert(exists nameOfFunc);
+    assert(exists localVariables);
+    tmp+="(" + nameOfFunc +")"+"\n";
+    tmp+="@" + localVariables +"\n";
+    tmp+="D=A\n";
+    tmp+="@EndFunc\n";
+    tmp+="D;JEQ\n";
+    tmp+="(HeadLoop)\n";
+    tmp+="@SP\n";
+    tmp+="A=M\n";
+    tmp+="M=0\n";
+    tmp+="@SP\n";
+    tmp+="M=M+1\n";
+    tmp+="@HeadLoop\n";
+    tmp+="D=D-1\n";
+    tmp+="D;JNE\n";
+    tmp+="(EndFunc)\n";
+
 
     return tmp;
 }
