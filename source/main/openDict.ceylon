@@ -57,7 +57,7 @@ shared void openDict(String dictPath) {
     }
 }
 
-//this function reading the Vm's files and return the text as a String
+//this function reading the Vm's files and return the text as a  String
 String textOfFile(String path){
     variable String tmp="";
     Resource resource = parsePath(path).resource;
