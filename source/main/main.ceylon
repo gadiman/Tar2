@@ -12,7 +12,7 @@ shared void main() {
     openDict("D:/CeylonExercises/project 08/FunctionCalls/FibonacciElement");
     openDict("D:/CeylonExercises/project 08/FunctionCalls/SimpleFunction");
     openDict("D:/CeylonExercises/project 08/FunctionCalls/StaticsTest");
-    openDict("D:/CeylonExercises/project 08/FunctionCalls/BasicLoop");
-    openDict("D:/CeylonExercises/project 08/FunctionCalls/FibonacciSeries");
+    openDict("D:/CeylonExercises/project 08/ProgramFlow/BasicLoop");
+    openDict("D:/CeylonExercises/project 08/ProgramFlow/FibonacciSeries");
 }
 

@@ -646,7 +646,7 @@ String callFun(){
     tmp+="@calladfunc\n";
     tmp+="0;JMP\n";
     //label for RA
-    tmp+="ReturnAddress\n";
+    tmp+="(ReturnAddress)\n";
     return tmp;
 }
 
