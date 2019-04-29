@@ -16,15 +16,22 @@ shared void readFile(String filePath) {
     if (is File resource) {
         variable String textOfFile="";
         variable String dict = resource.directory.string;
+        value index =resource.name.indexOf(".");
+        variable String nameOfFile = resource.name.substring(0,index);
+        variable String suffix = resource.name.substring( index);
 
+        if(suffix == ".gadAndShimon"){
+            textOfFile+= init();
+        }
         forEachLine(resource, (String line) {
 
             {String*} firstWords = line.split();
             String? firstWord = firstWords.first;
 
 
-            value index =resource.name.indexOf(".");
-            variable String nameOfFile = resource.name.substring(0,index);
+
+
+
 
             switch (firstWord)
             case ("add") {
@@ -70,7 +77,7 @@ shared void readFile(String filePath) {
                 textOfFile += if_gotoFun(line,nameOfFile);
                 }
             case ("call")     {
-                textOfFile += callFun();
+                textOfFile += callFun(line);
               }
             case ("function") {
                 textOfFile += functionFun(line);
@@ -180,6 +187,7 @@ String orFun(){
 
 
 variable Integer counter = 0;//For lables
+
 
 String eqFun(){
     variable String tmp="";
@@ -535,6 +543,9 @@ String pushFun(String line,String nameOfFile ){
 //---------------------------------------------Targil 2-----------------------------------------------//
 
 
+variable Integer funCounter = 0;//For functions call
+
+
 String labelFun(String line,String nameOfFile){
 
     {String*} sentence = line.split();
@@ -543,18 +554,26 @@ String labelFun(String line,String nameOfFile){
     assert(exists nameOfLable);
 
     variable String tmp="";
+    tmp+="//****************************** Lable Strat**************************************\n";
+
     tmp+="("+ nameOfFile+ "."+ nameOfLable + ")" + "\n"; //first lable commands
+    tmp+="//****************************** Lable End**************************************\n";
+
     return tmp;
 }
 
 String gotoFun(String line,String nameOfFile){
     variable String tmp="";
+    tmp+="//*****************************Goto Start**************************************\n";
+
     {String*} sentence = line.split();
 
     String? nameOfLable = sentence.rest.first; //name of lable
     assert(exists nameOfLable);
     tmp+="@"+ nameOfFile+ "."+ nameOfLable + "\n";
     tmp+="0;JMP\n";
+    tmp+="//****************************** Goto End**************************************\n";
+
     return tmp;
 }
 
@@ -567,31 +586,42 @@ String functionFun(String line){
     String? localVariables = sentence.rest.rest.first; //The number of the local variables
     assert(exists nameOfFunc);
     assert(exists localVariables);
+    tmp+="//****************************** create functin " + nameOfFunc + " Start**************************************\n";
     tmp+="(" + nameOfFunc +")"+"\n";
     tmp+="@" + localVariables +"\n";
     tmp+="D=A\n";
-    tmp+="@EndFunc\n";
+    tmp+="@EndFunc" +counter.string+ "\n";
     tmp+="D;JEQ\n";
-    tmp+="(HeadLoop)\n";
+    tmp+="(HeadLoop" +counter.string+ ")\n";
     tmp+="@SP\n";
     tmp+="A=M\n";
     tmp+="M=0\n";
     tmp+="@SP\n";
     tmp+="M=M+1\n";
-    tmp+="@HeadLoop\n";
+    tmp+="@HeadLoop" +counter.string+ "\n";
     tmp+="D=D-1\n";
     tmp+="D;JNE\n";
-    tmp+="(EndFunc)\n";
+    tmp+="(EndFunc" +counter.string+ ")\n";
+    counter++;
+    tmp+="//****************************** create functin " + nameOfFunc + " End**************************************\n";
 
 
     return tmp;
 }
 
 
-String callFun(){
+String callFun(String line){
+
+    {String*} sentence = line.split();
+
+    String? nameOfFunc = sentence.rest.first; //The name of  the function
+    String? localVariables = sentence.rest.rest.first; //The number of the local variables
     variable String tmp="";
+    assert (exists nameOfFunc);
     //push return address
-    tmp+="@ReturnAddress\n";
+    tmp+="//****************************** Call functin " + nameOfFunc + " strat**************************************\n";
+
+    tmp+="@"+ nameOfFunc+".ReturnAddress"+ funCounter.string+" \n";
     tmp+="D=A\n";
     tmp+="@SP\n";
     tmp+="A=M\n";
@@ -630,29 +660,42 @@ String callFun(){
     tmp+="M=D\n";
     tmp+="@SP\n";
     tmp+="M=M+1\n";
+
+
+    assert (exists localVariables);
+    Integer? x = parseInteger(localVariables);
+    assert (exists x);
+    value numOfArgs = x + 5;
+
     //ARG for called func
     tmp+="@SP\n";
     tmp+="D=M\n";
-    tmp+="@calledARG\n";
+    tmp+="@" + numOfArgs.string+ "\n";
     tmp+="D=D-A\n";
     tmp+="@ARG\n";
     tmp+="M=D\n";
+
     //callad LCL=SP
     tmp+="@SP\n";
     tmp+="D=M\n";
     tmp+="@LCL\n";
     tmp+="M=D\n";
 //GOTO to the func
-    tmp+="@calladfunc\n";
+    tmp+="@" +nameOfFunc+"\n";
     tmp+="0;JMP\n";
     //label for RA
-    tmp+="(ReturnAddress)\n";
+    tmp+="("+nameOfFunc+ ".ReturnAddress" + funCounter.string+ ")\n";
+    funCounter++;
+    tmp+="//****************************** create functin " + nameOfFunc + "End **************************************\n";
+
     return tmp;
 }
 
 String returnFun(){
     variable String tmp="";
     //frame=LCL
+    tmp+="//****************************** Return functin Strat**************************************\n";
+
     tmp+="@LCL\n";
     tmp+="D=M\n";
     //return to frame-5
@@ -708,8 +751,10 @@ String returnFun(){
     tmp+="@13\n";
     tmp+="A=M\n";
     tmp+="0;JMP\n";
+    tmp+= "//****************************** create functin End **************************************\n";
 
     return tmp;
+
 }
 
 
@@ -722,15 +767,28 @@ String if_gotoFun(String line,String nameOfFile){
 
 
     variable String tmp="";
+    tmp+= "//****************************** if_gotoFun Start **************************************\n";
+
     tmp+= "@SP\n";//A=SP
     tmp+="M=M-1\n";//SP--
     tmp+="A=M\n";// A=RAM[SP]
     tmp+="D=M\n";//The value of the top (in the stack)
     tmp+="@"+ nameOfFile+ "."+ nameOfLable + "\n"; //A = lable
     tmp+="D;JNE\n";//if D == -1 jump
-
+    tmp+= "//****************************** if_gotoFun End **************************************\n";
     return tmp;
+
 }
 
 
+String  init()
+{
+    variable String tmp="";
 
+    tmp+="@256\n";
+    tmp+="D=A\n";
+    tmp+="@SP\n";
+    tmp+="M=D\n";
+    tmp+=callFun("call Sys.init 0");
+    return tmp;
+}

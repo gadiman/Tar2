@@ -8,6 +8,10 @@ import ceylon.file {
     createFileIfNil,
     Nil
 }
+import ceylon.collection { ArrayList }
+import java.util.concurrent { Semaphore }
+import java.lang { Thread, Math }
+
 
 "Run the module `openDict`."
 
@@ -44,7 +48,7 @@ shared void openDict(String dictPath) {
 
         }
         if (numOfVmFiles > 1) { //output one asm file for each directory
-            String newPath = dict + "\\result.gadAndShimon";
+            String newPath = dict + "\\"+resource_.name+".gadAndShimon";
             Resource newPath_ = parsePath(newPath).resource;
             if (is File|Nil newPath_) {
                 File file = createFileIfNil(newPath_);
@@ -52,6 +56,10 @@ shared void openDict(String dictPath) {
                     appender.write(tmp);
                 }
             }
+
+
+
+
             readFile(newPath_.string);
         }
     }
