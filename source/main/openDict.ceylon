@@ -21,9 +21,12 @@ shared void openDict(String dictPath) {
     value resource_ = parsePath(dictPath).resource;
 
     variable String tmp = "";//for text of vm's files
+    variable String textOfFile="";
+
 
 
     if (is Directory resource_) {
+        variable Integer counter =1;
 
         Integer numOfVmFiles= resource_.childPaths("*.vm").size;//num of VM's files on directory
         variable String dict = resource_.string;//neme of directory
@@ -34,20 +37,32 @@ shared void openDict(String dictPath) {
 
             if (is File pathOfF) { //Check if is a file
                 if (numOfVmFiles == 1) {//only one vm file
-                    readFile(currentFilePhath);
+                    readFile(currentFilePhath,false,false,"","");
                 }
                 else {//serch for Sys.vm file and put him at the first of the result file
-
-                    if (pathOfF.name.equals("Sys.vm")) {
-                        tmp = textOfFile(pathOfF.string).plus(tmp);//put Sys.vm text on the head
-                    } else {
-                        tmp +=textOfFile(pathOfF.string);
+                    print(numOfVmFiles);
+                    if(counter == 1) {
+                            textOfFile+=readFile(currentFilePhath,true,false,"","");
                     }
+                    if(counter == numOfVmFiles ) {
+                        textOfFile+=readFile(currentFilePhath,false,true,resource_.name,textOfFile);
+                    }
+                    textOfFile+=readFile(currentFilePhath,true,true,"",textOfFile);
+
+                    counter++;
+
+
+
+                    /*  if (pathOfF.name.equals("Sys.vm")) {
+                          tmp = textOfFile(pathOfF.string).plus(tmp);//put Sys.vm text on the head
+                      } else {
+                          tmp +=textOfFile(pathOfF.string);
+                      }*/
                 }
             }
 
         }
-        if (numOfVmFiles > 1) { //output one asm file for each directory
+      /*  if (numOfVmFiles > 1) { //output one asm file for each directory
             String newPath = dict + "\\"+resource_.name+".gadAndShimon";
             Resource newPath_ = parsePath(newPath).resource;
             if (is File|Nil newPath_) {
@@ -61,7 +76,7 @@ shared void openDict(String dictPath) {
 
 
             readFile(newPath_.string);
-        }
+        }*/
     }
 }
 

@@ -9,29 +9,27 @@ import ceylon.file {
     home
 }
 
-shared void readFile(String filePath) {
+shared String readFile(String filePath,Boolean firstFile, Boolean lastFile,String nameOfF,String pText) {
     Resource resource = parsePath(filePath).resource;
     // Resource has 4 subtypes: File | Directory | Link | Nil
     // We have to resolve the type.
+    variable String textOfFile="";
+    if(firstFile && !lastFile){
+        textOfFile+= init();
+    }
+
+    if(pText != ""){
+        textOfFile+=pText;
+    }
+
     if (is File resource) {
-        variable String textOfFile="";
         variable String dict = resource.directory.string;
         value index =resource.name.indexOf(".");
         variable String nameOfFile = resource.name.substring(0,index);
-        variable String suffix = resource.name.substring( index);
-
-        if(suffix == ".gadAndShimon"){
-            textOfFile+= init();
-        }
         forEachLine(resource, (String line) {
 
             {String*} firstWords = line.split();
             String? firstWord = firstWords.first;
-
-
-
-
-
 
             switch (firstWord)
             case ("add") {
@@ -88,12 +86,24 @@ shared void readFile(String filePath) {
             else {  }
         });
 
+
+        if(!lastFile && !firstFile){
         String pathForAsmFile = changeNameOfSuffix(resource.name,dict);
         writeFileAsm(pathForAsmFile,textOfFile);
         textOfFile ="";
+        }
+        if(lastFile && !firstFile){
+            String pathForAsmFile = dict+"\\"+nameOfF+".asm";
+            writeFileAsm(pathForAsmFile,textOfFile);
+            textOfFile ="";
+            print(pathForAsmFile);
+            textOfFile ="";
+        }
 
 
     }
+
+    return textOfFile;
 
 
 
@@ -336,6 +346,7 @@ String popFun(String line,String nameOfFile){
 
     }
     case ("static") {
+
         tmp+="@"+ nameOfFile+ "." +index + "\n";//set A= "name_of_file.index"
         tmp+="D=A\n";//D=name_of_file.index
         tmp+="@13\n";//A=13
@@ -663,17 +674,25 @@ String callFun(String line){
 
 
     assert (exists localVariables);
-    Integer? x = parseInteger(localVariables);
+    Integer? x = parseInteger(localVariables.string);
     assert (exists x);
     value numOfArgs = x + 5;
 
-    //ARG for called func
-    tmp+="@SP\n";
-    tmp+="D=M\n";
     tmp+="@" + numOfArgs.string+ "\n";
-    tmp+="D=D-A\n";
+    tmp+="D=A\n";
+    tmp+="@SP\n";
+    tmp+="D=M-D\n";
     tmp+="@ARG\n";
     tmp+="M=D\n";
+
+
+    //ARG for called func
+   // tmp+="@SP\n";
+    //tmp+="D=M\n";
+    //tmp+="@" + numOfArgs.string+ "\n";
+    //tmp+="D=D-A\n";
+    //tmp+="@ARG\n";
+    //tmp+="M=D\n";
 
     //callad LCL=SP
     tmp+="@SP\n";
@@ -708,6 +727,7 @@ String returnFun(){
     //ARG=POP()
     tmp+="@SP\n";
     tmp+="M=M-1\n";
+    //tmp+="@SP\n";
     tmp+="A=M\n";
     tmp+="D=M\n";
     tmp+="@ARG\n";
